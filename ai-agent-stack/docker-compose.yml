@@ -1,5 +1,3 @@
-version: '3.8'
-
 # =============================================================================
 # Valtheron CyberSec AI Agent Stack
 # Local LLM + Dual Agent Setup (Stopoda + Costraca) + Open-WebUI
@@ -70,7 +68,7 @@ services:
 
   # ---------------------------------------------------------------------------
   # Agent Zero (Stopoda) - Primary Agent
-  # Model: qwen2.5-coder:32b (best tool-calling + reasoning)
+  # Model: qwen2.5-coder:14b-instruct-q4_K_M (~8.5GB VRAM, fits RTX 3080 10GB)
   # WebUI: localhost:8080
   # ---------------------------------------------------------------------------
   stopoda:
@@ -84,7 +82,7 @@ services:
       - ./stopoda/tools:/a0/tools:ro
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
-      - DEFAULT_MODEL=qwen2.5-coder:32b-instruct-q5_K_M
+      - DEFAULT_MODEL=qwen2.5-coder:14b-instruct-q4_K_M
       - DEFAULT_EMBEDDING_MODEL=nomic-embed-text
       - AGENT_NAME=Stopoda
       - AGENT_ROLE=primary_security_analyst
@@ -109,7 +107,7 @@ services:
 
   # ---------------------------------------------------------------------------
   # Agent Zero (Costraca) - Secondary Agent
-  # Model: llama3.2:70b (alternative reasoning for multi-agent diversity)
+  # Model: qwen2.5-coder:7b-instruct-q8_0 (~7.5GB VRAM, fast on RTX 3080)
   # WebUI: localhost:8081
   # ---------------------------------------------------------------------------
   costraca:
@@ -123,7 +121,7 @@ services:
       - ./costraca/tools:/a0/tools:ro
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
-      - DEFAULT_MODEL=llama3.2:70b-instruct-q4_K_M
+      - DEFAULT_MODEL=qwen2.5-coder:7b-instruct-q8_0
       - DEFAULT_EMBEDDING_MODEL=nomic-embed-text
       - AGENT_NAME=Costraca
       - AGENT_ROLE=secondary_recon_executor
