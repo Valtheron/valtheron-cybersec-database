@@ -1,0 +1,17 @@
+# Secrets - NEVER commit
+.env
+
+# Agent runtime data
+stopoda/workspace/
+stopoda/output/
+costraca/workspace/
+costraca/output/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Backups
+*.bak
+*.backup
