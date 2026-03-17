@@ -1,0 +1,19 @@
+# Never commit secrets
+.env
+*.key
+*.pem
+*.p12
+
+# Agent runtime data (large/sensitive)
+stopoda/memory/
+costorca/memory/
+stopoda/chroma/
+costorca/chroma/
+
+# Backup output
+/backup/
+
+# Temp
+/tmp/
+__pycache__/
+*.pyc

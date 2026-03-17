@@ -1,0 +1,111 @@
+version: '3.8'
+
+# ============================================================
+# Valtheron CyberSec - Local LLM Security Agent Stack
+# BlackIceSecure Setup | Offline & Private
+# Agents: Stopoda (Port 8080) | Costraca (Port 8081)
+# ============================================================
+
+services:
+
+  # ── Ollama (GPU-shared, single instance for both agents) ─────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-shared
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MAX_LOADED_MODELS=2        # Support both agents concurrently
+      - OLLAMA_NUM_PARALLEL=4
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ── Open-WebUI (shared chat interface → localhost:3000) ──────────────────
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - "3000:8080"
+    volumes:
+      - openwebui_data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-changeme-use-env-file}
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  # ── Agent Zero: STOPODA (localhost:8080) ─────────────────────────────────
+  # Primary agent – coding, recon, file analysis
+  stopoda:
+    image: frdel/agent-zero-run:latest
+    container_name: stopoda-agent
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./stopoda:/a0                          # Persistent agent memory & data
+      - ./stopoda/tools:/a0/python/tools:ro    # Custom tools (read-only mount)
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DEFAULT_MODEL=qwen2.5-coder:32b-instruct-q5_K_M
+      - EMBEDDING_MODEL=nomic-embed-text
+      - AGENT_NAME=Stopoda
+      - SAFETY_MODE=true
+      - AUTH_LOGIN=${STOPODA_LOGIN:-admin}
+      - AUTH_PASSWORD=${STOPODA_PASSWORD:-changeme}
+    depends_on:
+      ollama:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+
+  # ── Agent Zero: COSTRACA (localhost:8081) ────────────────────────────────
+  # Secondary agent – threat intel, reporting, coordination
+  costraca:
+    image: frdel/agent-zero-run:latest
+    container_name: costraca-agent
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - ./costorca:/a0
+      - ./costorca/tools:/a0/python/tools:ro
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DEFAULT_MODEL=llama3.2:latest
+      - EMBEDDING_MODEL=nomic-embed-text
+      - AGENT_NAME=Costraca
+      - SAFETY_MODE=true
+      - AUTH_LOGIN=${COSTRACA_LOGIN:-admin}
+      - AUTH_PASSWORD=${COSTRACA_PASSWORD:-changeme}
+    depends_on:
+      ollama:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+
+volumes:
+  ollama_data:
+  openwebui_data:

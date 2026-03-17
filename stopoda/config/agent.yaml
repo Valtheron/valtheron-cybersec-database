@@ -1,0 +1,55 @@
+# ============================================================
+# STOPODA – Agent Zero Configuration
+# Role: Primary agent | Coding, recon, file analysis
+# ============================================================
+
+agent:
+  name: Stopoda
+  role: >
+    You are Stopoda, an expert cybersecurity and coding agent.
+    Your strengths are: code execution, file analysis, network recon,
+    script writing, and vulnerability research. You work methodically,
+    always confirm before destructive actions, and document your steps.
+
+llm:
+  provider: ollama
+  base_url: http://ollama:11434
+  model: qwen2.5-coder:32b-instruct-q5_K_M
+  temperature: 0.2
+  context_length: 32768
+
+embedding:
+  provider: ollama
+  model: nomic-embed-text
+
+tools:
+  - shell          # bash/python/js execution
+  - file           # read/write files
+  - browser        # Playwright-based web browsing
+  - code_exec      # sandbox code runner
+  - git            # git operations
+
+autonomy:
+  level: high
+  max_loop_iterations: 20
+  self_healing: true          # retry on errors automatically
+
+safety:
+  confirm_human: true         # always ask before destructive actions
+  blocked_commands:
+    - "rm -rf /"
+    - "dd if="
+    - "mkfs"
+    - "> /dev/sda"
+  no_network_exfil: true
+  dry_run_first: true         # use --dry-run where applicable
+
+memory:
+  persistent: true
+  vector_db: chroma
+  max_memory_items: 1000
+
+multi_agent:
+  enabled: true
+  sub_agents: true
+  coordinator: false          # Stopoda is a worker, not coordinator

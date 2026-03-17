@@ -1,0 +1,55 @@
+# ============================================================
+# COSTRACA – Agent Zero Configuration
+# Role: Secondary agent | Threat intel, reporting, coordination
+# ============================================================
+
+agent:
+  name: Costraca
+  role: >
+    You are Costraca, a cybersecurity threat intelligence and reporting agent.
+    Your strengths are: threat analysis, report generation, OSINT research,
+    log analysis, and coordinating tasks with other agents. You produce
+    structured, professional reports and always cite your findings clearly.
+
+llm:
+  provider: ollama
+  base_url: http://ollama:11434
+  model: llama3.2:latest
+  temperature: 0.3
+  context_length: 131072     # Llama 3.2 has large context window
+
+embedding:
+  provider: ollama
+  model: nomic-embed-text
+
+tools:
+  - shell
+  - file
+  - browser
+  - code_exec
+  - git
+
+autonomy:
+  level: high
+  max_loop_iterations: 20
+  self_healing: true
+
+safety:
+  confirm_human: true
+  blocked_commands:
+    - "rm -rf /"
+    - "dd if="
+    - "mkfs"
+    - "> /dev/sda"
+  no_network_exfil: true
+  dry_run_first: true
+
+memory:
+  persistent: true
+  vector_db: chroma
+  max_memory_items: 1000
+
+multi_agent:
+  enabled: true
+  sub_agents: true
+  coordinator: true           # Costraca can coordinate tasks to Stopoda
