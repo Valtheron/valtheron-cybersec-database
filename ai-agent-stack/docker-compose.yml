@@ -16,7 +16,7 @@ services:
     container_name: ollama-shared
     restart: unless-stopped
     ports:
-      - "11434:11434"
+      - "127.0.0.1:11435:11434"  # Host port 11435 to avoid conflict with system Ollama on 11434
     volumes:
       - ollama_data:/root/.ollama
     deploy:
