@@ -68,7 +68,7 @@ services:
 
   # ---------------------------------------------------------------------------
   # Agent Zero (Stopoda) - Primary Agent
-  # Model: qwen2.5-coder:14b-instruct-q4_K_M (~8.5GB VRAM, fits RTX 3080 10GB)
+  # Model: qwen2.5-coder:7b-instruct-q4_K_M (~4.5GB VRAM)
   # WebUI: localhost:8080
   # ---------------------------------------------------------------------------
   stopoda:
@@ -82,7 +82,7 @@ services:
       - ./stopoda/tools:/a0/tools:ro
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
-      - DEFAULT_MODEL=qwen2.5-coder:14b-instruct-q4_K_M
+      - DEFAULT_MODEL=qwen2.5-coder:7b-instruct-q4_K_M
       - DEFAULT_EMBEDDING_MODEL=nomic-embed-text
       - AGENT_NAME=Stopoda
       - AGENT_ROLE=primary_security_analyst
@@ -107,7 +107,7 @@ services:
 
   # ---------------------------------------------------------------------------
   # Agent Zero (Costraca) - Secondary Agent
-  # Model: qwen2.5-coder:7b-instruct-q8_0 (~7.5GB VRAM, fast on RTX 3080)
+  # Model: qwen2.5-coder:7b-instruct-q4_K_M (~4.5GB VRAM)
   # WebUI: localhost:8081
   # ---------------------------------------------------------------------------
   costraca:
@@ -121,7 +121,7 @@ services:
       - ./costraca/tools:/a0/tools:ro
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
-      - DEFAULT_MODEL=qwen2.5-coder:7b-instruct-q8_0
+      - DEFAULT_MODEL=qwen2.5-coder:7b-instruct-q4_K_M
       - DEFAULT_EMBEDDING_MODEL=nomic-embed-text
       - AGENT_NAME=Costraca
       - AGENT_ROLE=secondary_recon_executor
