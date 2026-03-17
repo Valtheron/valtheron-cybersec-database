@@ -1,0 +1,66 @@
+{
+  "agent": {
+    "name": "Stopoda",
+    "role": "Primary Security Analyst",
+    "description": "Security-focused autonomous agent for analysis, reconnaissance, and reporting. Specializes in offensive security research with strong safety guardrails."
+  },
+  "llm": {
+    "provider": "ollama",
+    "base_url": "http://ollama:11434",
+    "model": "qwen2.5-coder:32b-instruct-q5_K_M",
+    "embedding_model": "nomic-embed-text",
+    "temperature": 0.7,
+    "context_window": 32768,
+    "max_tokens": 4096
+  },
+  "tools": {
+    "shell": {
+      "enabled": true,
+      "allowed_commands": ["ls", "find", "file", "strings", "xxd", "md5sum", "sha256sum", "wc", "grep", "cat", "head", "tail", "du", "df", "ps", "netstat", "ss", "nmap", "whois", "dig", "curl", "wget", "tar", "gzip", "unzip", "python3", "pip3", "git"],
+      "blocked_commands": ["rm -rf", "mkfs", "dd", "fdisk", "parted", "wipefs", "shred", "sudo rm", "> /dev/", "chmod 777 /"],
+      "timeout_seconds": 120,
+      "working_dir": "/a0/workspace"
+    },
+    "file_manager": {
+      "enabled": true,
+      "allowed_paths": ["/a0/workspace", "/a0/output", "/tmp/stopoda"],
+      "read_only_paths": ["/a0/tools", "/a0/knowledge"],
+      "max_file_size_mb": 100
+    },
+    "code_exec": {
+      "enabled": true,
+      "languages": ["python3", "bash", "javascript"],
+      "sandbox": true,
+      "network_access": false
+    },
+    "web_browser": {
+      "enabled": false,
+      "comment": "Enable only when network access is explicitly required"
+    },
+    "memory": {
+      "enabled": true,
+      "vector_db": "chromadb",
+      "vector_db_url": "http://chromadb:8000",
+      "collection": "stopoda_memory"
+    }
+  },
+  "autonomy": {
+    "level": "high",
+    "max_iterations": 20,
+    "self_healing": true,
+    "auto_retry_on_error": true,
+    "max_retries": 3
+  },
+  "safety": {
+    "confirm_before_destructive_actions": true,
+    "confirm_before_network_actions": true,
+    "human_in_loop_keywords": ["delete", "remove", "rm", "drop", "truncate", "format", "wipe", "overwrite"],
+    "guardrail_prompt": "IMPORTANT SAFETY RULES:\n1. NEVER delete system files or user data without explicit confirmation.\n2. NEVER execute actions outside /a0/workspace without permission.\n3. ALWAYS use --dry-run or equivalent before destructive operations.\n4. ALWAYS ask for confirmation with the exact command before executing.\n5. Log all actions to /a0/output/audit.log.\n6. NEVER exfiltrate data outside the local network.\n7. Prioritize read-only analysis over modification.",
+    "audit_log": "/a0/output/audit.log"
+  },
+  "prompts": {
+    "security_audit": "Security Audit Task (ReAct-Style with Safety):\n1. SCAN ONLY (read-only): Search recursively for sensitive files matching patterns: '*.pem', '*.key', '.ssh/', '.env', '*password*', '*secret*', '*.gpg', '*.p12', '*.pfx'.\n2. LIST in detail: Full path, file size, last modified, first 50 bytes preview (never print actual secrets).\n3. RISK ASSESSMENT: Classify each finding as low/medium/high (SSH keys=high, .env=high, certs=medium).\n4. BACKUP PLAN: Generate rsync --dry-run commands per category to /output/backup/YYYY-MM-DD/.\n5. WAIT FOR CONFIRMATION: Output full report. Ask: 'Confirm with YES + backup path to proceed. Type NO to abort and log.'\nTools: shell (find/ls/file), file_manager (read-only). No sudo. No network.",
+    "network_recon": "Network Reconnaissance (Passive Only):\n1. Enumerate local network interfaces and routes.\n2. Perform DNS lookups for provided targets (no active scanning without approval).\n3. Check open ports on localhost only with ss/netstat.\n4. Document findings in /a0/output/network_report.md.\n5. Ask for confirmation before any active nmap scans.",
+    "code_review": "Secure Code Review:\n1. Analyze provided code for OWASP Top 10 vulnerabilities.\n2. Check for: SQL injection, XSS, command injection, path traversal, insecure deserialization, hardcoded credentials.\n3. Provide severity ratings (Critical/High/Medium/Low/Info).\n4. Suggest remediation for each finding.\n5. Output structured report to /a0/output/code_review_TIMESTAMP.md."
+  }
+}

@@ -1,0 +1,179 @@
+version: '3.8'
+
+# =============================================================================
+# Valtheron CyberSec AI Agent Stack
+# Local LLM + Dual Agent Setup (Stopoda + Costraca) + Open-WebUI
+# Security-hardened, fully offline, no cloud dependencies
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Ollama - Local LLM Backend (shared by both agents)
+  # ---------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-shared
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+        limits:
+          memory: 32G
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MAX_LOADED_MODELS=2
+      - OLLAMA_NUM_PARALLEL=4
+      - OLLAMA_KEEP_ALIVE=24h
+    networks:
+      - agent_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ---------------------------------------------------------------------------
+  # Open-WebUI - Chat Interface (shared, connects to Ollama)
+  # ---------------------------------------------------------------------------
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - "3000:8080"
+    volumes:
+      - openwebui_data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-change_this_secret_key_immediately}
+      - WEBUI_AUTH=true
+      - ENABLE_SIGNUP=false
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - agent_net
+    # Read-only root FS with explicit writable mounts
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+
+  # ---------------------------------------------------------------------------
+  # Agent Zero (Stopoda) - Primary Agent
+  # Model: qwen2.5-coder:32b (best tool-calling + reasoning)
+  # WebUI: localhost:8080
+  # ---------------------------------------------------------------------------
+  stopoda:
+    image: frdel/agent-zero-run:latest
+    container_name: stopoda-agent
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./stopoda:/a0
+      - ./stopoda/tools:/a0/tools:ro
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DEFAULT_MODEL=qwen2.5-coder:32b-instruct-q5_K_M
+      - DEFAULT_EMBEDDING_MODEL=nomic-embed-text
+      - AGENT_NAME=Stopoda
+      - AGENT_ROLE=primary_security_analyst
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - agent_net
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+
+  # ---------------------------------------------------------------------------
+  # Agent Zero (Costraca) - Secondary Agent
+  # Model: llama3.2:70b (alternative reasoning for multi-agent diversity)
+  # WebUI: localhost:8081
+  # ---------------------------------------------------------------------------
+  costraca:
+    image: frdel/agent-zero-run:latest
+    container_name: costraca-agent
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - ./costraca:/a0
+      - ./costraca/tools:/a0/tools:ro
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DEFAULT_MODEL=llama3.2:70b-instruct-q4_K_M
+      - DEFAULT_EMBEDDING_MODEL=nomic-embed-text
+      - AGENT_NAME=Costraca
+      - AGENT_ROLE=secondary_recon_executor
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - agent_net
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+
+  # ---------------------------------------------------------------------------
+  # ChromaDB - Local Vector Database for RAG (optional)
+  # ---------------------------------------------------------------------------
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - chromadb_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.token.TokenConfigServerAuthCredentialsProvider
+      - CHROMA_SERVER_AUTH_CREDENTIALS=${CHROMA_TOKEN:-change_this_token}
+      - CHROMA_SERVER_AUTH_PROVIDER=chromadb.auth.token.TokenAuthServerProvider
+    networks:
+      - agent_net
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  agent_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+volumes:
+  ollama_data:
+  openwebui_data:
+  chromadb_data:
