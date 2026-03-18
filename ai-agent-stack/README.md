@@ -34,7 +34,7 @@ Local, offline, security-hardened AI agent setup for cybersecurity workflows.
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
-| Stopoda | `qwen2.5-coder:32b-instruct-q5_K_M` | Best tool-calling + code reasoning |
+| Stopoda | `qwen2.5:7b-instruct-q5_K_S` | Best tool-calling + code reasoning |
 | Costraca | `llama3.2:70b-instruct-q4_K_M` | General reasoning + report generation |
 | Both | `nomic-embed-text` | Embeddings for RAG/memory |
 

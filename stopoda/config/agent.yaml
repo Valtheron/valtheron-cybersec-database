@@ -14,7 +14,7 @@ agent:
 llm:
   provider: ollama
   base_url: http://ollama:11434
-  model: qwen2.5-coder:32b-instruct-q5_K_M
+  model: qwen2.5:7b-instruct-q5_K_S
   temperature: 0.2
   context_length: 32768
 

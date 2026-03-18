@@ -15,7 +15,7 @@ Vollständig offline, privat und dockerisiert. Kein Cloud, keine API-Kosten.
 
 | Agent | Modell | Stärke |
 |---|---|---|
-| Stopoda | `qwen2.5-coder:32b-instruct-q5_K_M` | Code, Tool-Calling, Autonomie |
+| Stopoda | `qwen2.5:7b-instruct-q5_K_S` | Code, Tool-Calling, Autonomie |
 | Costraca | `llama3.2:latest` | Analyse, Reasoning, großer Kontext |
 | Shared | `nomic-embed-text` | RAG / Vektordatenbank |
 
@@ -68,7 +68,7 @@ docker compose logs -f
 | Konfiguration | RAM | GPU | Modell |
 |---|---|---|---|
 | Minimal | 16 GB | CPU only | llama3.2:8b |
-| Empfohlen | 32 GB | RTX 3090/4090 (24 GB VRAM) | qwen2.5-coder:32b-Q5 |
+| Empfohlen | 32 GB | RTX 3090/4090 (24 GB VRAM) | qwen2.5:7b-instruct-q5_K_S |
 | Server | 64 GB+ | A100/H100 | 70B-Modelle |
 
 ## Security Hardening

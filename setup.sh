@@ -74,8 +74,8 @@ start_stack() {
 pull_models() {
   log_step "Pulling LLM models (first run: 10-30 min)..."
 
-  log_info "Pulling qwen2.5-coder:32b-instruct-q5_K_M (Stopoda primary)..."
-  docker exec ollama-shared ollama pull qwen2.5-coder:32b-instruct-q5_K_M
+  log_info "Pulling qwen2.5:7b-instruct-q5_K_S (Stopoda primary)..."
+  docker exec ollama-shared ollama pull qwen2.5:7b-instruct-q5_K_S
 
   log_info "Pulling llama3.2:latest (Costraca)..."
   docker exec ollama-shared ollama pull llama3.2:latest

@@ -86,8 +86,8 @@ pull_models() {
   log_step "Pulling LLM models (this may take 10-30 min on first run)..."
 
   # Primary model for Stopoda
-  log_info "Pulling qwen2.5-coder:32b-instruct-q5_K_M (Stopoda)..."
-  docker exec ollama-shared ollama pull qwen2.5-coder:32b-instruct-q5_K_M
+  log_info "Pulling qwen2.5:7b-instruct-q5_K_S (Stopoda)..."
+  docker exec ollama-shared ollama pull qwen2.5:7b-instruct-q5_K_S
 
   # Secondary model for Costraca
   log_info "Pulling llama3.2:70b-instruct-q4_K_M (Costraca)... [optional, large]"
@@ -95,10 +95,10 @@ pull_models() {
   if [[ "${yn,,}" == "y" ]]; then
     docker exec ollama-shared ollama pull llama3.2:70b-instruct-q4_K_M
   else
-    log_warn "Skipping 70B model. Costraca will use qwen2.5-coder:32b instead."
+    log_warn "Skipping 70B model. Costraca will use qwen2.5:7b-instruct-q5_K_S instead."
     # Update costraca config to use same model
     if command -v jq &>/dev/null; then
-      jq '.llm.model = "qwen2.5-coder:32b-instruct-q5_K_M"' costraca/agent_config.json > /tmp/cfg.json
+      jq '.llm.model = "qwen2.5:7b-instruct-q5_K_S"' costraca/agent_config.json > /tmp/cfg.json
       mv /tmp/cfg.json costraca/agent_config.json
     fi
   fi

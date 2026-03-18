@@ -63,7 +63,7 @@ services:
       - ./stopoda/tools:/a0/python/tools:ro    # Custom tools (read-only mount)
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
-      - DEFAULT_MODEL=qwen2.5-coder:32b-instruct-q5_K_M
+      - DEFAULT_MODEL=qwen2.5:7b-instruct-q5_K_S
       - EMBEDDING_MODEL=nomic-embed-text
       - AGENT_NAME=Stopoda
       - SAFETY_MODE=true

@@ -68,8 +68,8 @@ echo ""
 # ── 8. Pull models ───────────────────────────────────────────────────────────
 info "Pulling Ollama models (this may take 10-30 minutes)..."
 
-info "Pulling qwen2.5-coder:32b-instruct-q5_K_M (Stopoda)..."
-docker exec ollama-shared ollama pull qwen2.5-coder:32b-instruct-q5_K_M
+info "Pulling qwen2.5:7b-instruct-q5_K_S (Stopoda)..."
+docker exec ollama-shared ollama pull qwen2.5:7b-instruct-q5_K_S
 
 info "Pulling llama3.2:latest (Costraca)..."
 docker exec ollama-shared ollama pull llama3.2:latest
