@@ -74,7 +74,7 @@ services:
     image: frdel/agent-zero-run:latest
     container_name: stopoda-agent
     restart: unless-stopped
-    user: "0"  # agent-zero startup scripts require root to copy /git/agent-zero → /a0
+    userns_mode: "host"  # bypass daemon-level userns-remap; agent-zero needs real root to copy /git/agent-zero → /a0
     ports:
       - "8080:80"
     volumes:
@@ -115,7 +115,7 @@ services:
     image: frdel/agent-zero-run:latest
     container_name: costraca-agent
     restart: unless-stopped
-    user: "0"  # agent-zero startup scripts require root to copy /git/agent-zero → /a0
+    userns_mode: "host"  # bypass daemon-level userns-remap; agent-zero needs real root to copy /git/agent-zero → /a0
     ports:
       - "8081:80"
     volumes:
