@@ -144,6 +144,47 @@ services:
       - SETGID
 
   # ---------------------------------------------------------------------------
+  # OpenClaw - Personal AI Agent via Claude API (Messaging: Telegram, Discord, etc.)
+  # WebUI: localhost:18789
+  # Requires: ANTHROPIC_API_KEY in .env
+  # First-time setup: docker compose run --rm openclaw-cli openclaw onboard
+  # ---------------------------------------------------------------------------
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:latest
+    container_name: openclaw-gateway
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18789:18789"
+    volumes:
+      - openclaw_data:/home/node
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENCLAW_SANDBOX=true
+    networks:
+      - agent_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:18789/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    security_opt:
+      - no-new-privileges:true
+
+  openclaw-cli:
+    image: ghcr.io/openclaw/openclaw:latest
+    container_name: openclaw-cli
+    network_mode: "service:openclaw"
+    volumes:
+      - openclaw_data:/home/node
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    profiles:
+      - cli
+    depends_on:
+      - openclaw
+
+  # ---------------------------------------------------------------------------
   # ChromaDB - Local Vector Database for RAG (optional)
   # ---------------------------------------------------------------------------
   chromadb:
@@ -174,3 +215,4 @@ volumes:
   ollama_data:
   openwebui_data:
   chromadb_data:
+  openclaw_data:
