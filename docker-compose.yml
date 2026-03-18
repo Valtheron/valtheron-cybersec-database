@@ -62,14 +62,7 @@ services:
       - ./stopoda:/a0                          # Persistent agent memory & data
       - ./stopoda/tools:/a0/python/tools:ro    # Custom tools (read-only mount)
     environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - CHAT_MODEL_PROVIDER=Ollama
-      - CHAT_MODEL_NAME=qwen2.5-coder:7b-instruct-q4_K_M
-      - UTIL_MODEL_PROVIDER=Ollama
-      - UTIL_MODEL_NAME=qwen2.5-coder:7b-instruct-q4_K_M
-      - EMBED_MODEL_PROVIDER=Ollama
-      - EMBED_MODEL_NAME=nomic-embed-text
-      - API_KEY=
+      - API_KEY=${ANTHROPIC_API_KEY}
       - AGENT_NAME=Stopoda
       - SAFETY_MODE=true
       - AUTH_LOGIN=${STOPODA_LOGIN:-admin}

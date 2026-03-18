@@ -81,14 +81,7 @@ services:
       - ./stopoda:/a0
       - ./stopoda/tools:/a0/tools:ro
     environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - CHAT_MODEL_PROVIDER=Ollama
-      - CHAT_MODEL_NAME=qwen2.5-coder:7b-instruct-q4_K_M
-      - UTIL_MODEL_PROVIDER=Ollama
-      - UTIL_MODEL_NAME=qwen2.5-coder:7b-instruct-q4_K_M
-      - EMBED_MODEL_PROVIDER=Ollama
-      - EMBED_MODEL_NAME=nomic-embed-text
-      - API_KEY=
+      - API_KEY=${ANTHROPIC_API_KEY}
       - AGENT_NAME=Stopoda
       - AGENT_ROLE=primary_security_analyst
     depends_on:
@@ -125,14 +118,7 @@ services:
       - ./costraca:/a0
       - ./costraca/tools:/a0/tools:ro
     environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - CHAT_MODEL_PROVIDER=Ollama
-      - CHAT_MODEL_NAME=qwen2.5-coder:7b-instruct-q4_K_M
-      - UTIL_MODEL_PROVIDER=Ollama
-      - UTIL_MODEL_NAME=qwen2.5-coder:7b-instruct-q4_K_M
-      - EMBED_MODEL_PROVIDER=Ollama
-      - EMBED_MODEL_NAME=nomic-embed-text
-      - API_KEY=
+      - API_KEY=${ANTHROPIC_API_KEY}
       - AGENT_NAME=Costraca
       - AGENT_ROLE=secondary_recon_executor
     depends_on:
