@@ -18,11 +18,51 @@ error() { echo -e "${RED}[ERROR]${NC} $*"; exit 1; }
 info "Installing system dependencies..."
 sudo apt-get update -qq
 sudo apt-get install -y docker.io docker-compose-plugin nvidia-container-toolkit \
-     curl git rsync tar ufw 2>/dev/null || true
+     curl git rsync tar ufw nodejs npm 2>/dev/null || true
 
 sudo nvidia-ctk runtime configure --runtime=docker 2>/dev/null || warn "NVIDIA CTK config skipped (no GPU?)"
 sudo systemctl restart docker
 sudo usermod -aG docker "$USER"
+
+# ── 2b. Claude CLI ───────────────────────────────────────────────────────────
+info "Installing Claude CLI (@anthropic-ai/claude-code)..."
+
+# The official installer puts claude in ~/.local/bin
+CLAUDE_INSTALL_DIR="$HOME/.local/bin"
+mkdir -p "$CLAUDE_INSTALL_DIR"
+
+# Add ~/.local/bin to PATH persistently (for bash and zsh)
+for PROFILE in "$HOME/.bashrc" "$HOME/.zshrc"; do
+  if [[ -f "$PROFILE" ]] && ! grep -q 'local/bin' "$PROFILE" 2>/dev/null; then
+    echo '' >> "$PROFILE"
+    echo '# Claude CLI' >> "$PROFILE"
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$PROFILE"
+    info "Added ~/.local/bin to PATH in $PROFILE"
+  fi
+done
+
+# Remove stale npm-global alias/path entries for claude if present
+for PROFILE in "$HOME/.bashrc" "$HOME/.zshrc"; do
+  if [[ -f "$PROFILE" ]] && grep -q 'npm-global.*claude\|alias claude' "$PROFILE" 2>/dev/null; then
+    warn "Found stale npm-global claude reference in $PROFILE – please remove it manually."
+  fi
+done
+
+export PATH="$CLAUDE_INSTALL_DIR:$PATH"
+
+if command -v claude &>/dev/null; then
+  info "Claude CLI already installed: $(claude --version 2>/dev/null || echo 'version unknown')"
+else
+  info "Downloading and running official Claude installer..."
+  curl -fsSL https://claude.ai/install.sh | bash
+  export PATH="$CLAUDE_INSTALL_DIR:$PATH"
+  if command -v claude &>/dev/null; then
+    info "Claude CLI installed: $(claude --version 2>/dev/null || echo 'ok')"
+  else
+    warn "Claude CLI installed to ~/.local/bin but not yet in PATH."
+    warn "Run: source ~/.bashrc  (or source ~/.zshrc) then try: claude --version"
+  fi
+fi
 
 # ── 3. Verify Docker & GPU ───────────────────────────────────────────────────
 info "Verifying Docker..."
