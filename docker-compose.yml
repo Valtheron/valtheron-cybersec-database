@@ -87,8 +87,8 @@ services:
     ports:
       - "8081:80"
     volumes:
-      - ./costorca:/a0
-      - ./costorca/tools:/a0/python/tools:ro
+      - ./costraca:/a0
+      - ./costraca/tools:/a0/python/tools:ro
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
       - DEFAULT_MODEL=llama3.2:latest
