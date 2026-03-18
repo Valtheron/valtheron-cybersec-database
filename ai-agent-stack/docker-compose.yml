@@ -103,6 +103,7 @@ services:
       - CHOWN
       - SETUID
       - SETGID
+      - NET_BIND_SERVICE
 
   # ---------------------------------------------------------------------------
   # Agent Zero (Costraca) - Secondary Agent
@@ -142,6 +143,7 @@ services:
       - CHOWN
       - SETUID
       - SETGID
+      - NET_BIND_SERVICE
 
   # ---------------------------------------------------------------------------
   # OpenClaw - Personal AI Agent via Claude API (Messaging: Telegram, Discord, etc.)
