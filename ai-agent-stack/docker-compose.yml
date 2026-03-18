@@ -145,6 +145,7 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPENCLAW_SANDBOX=true
       - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_API_KEY=ollama
     networks:
       - agent_net
     healthcheck:
