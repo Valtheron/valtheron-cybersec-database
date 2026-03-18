@@ -1,0 +1,36 @@
+{
+    "chat_model": {
+        "provider": "ollama",
+        "model": "qwen2.5-coder:7b-instruct-q4_K_M",
+        "ctx_length": 32768,
+        "limit_requests": 0,
+        "limit_input": 0,
+        "limit_output": 4096,
+        "kwargs": {
+            "api_base": "http://ollama:11434"
+        }
+    },
+    "utility_model": {
+        "provider": "ollama",
+        "model": "qwen2.5-coder:7b-instruct-q4_K_M",
+        "ctx_length": 32768,
+        "limit_requests": 0,
+        "limit_input": 0,
+        "limit_output": 4096,
+        "kwargs": {
+            "api_base": "http://ollama:11434"
+        }
+    },
+    "embeddings_model": {
+        "provider": "ollama",
+        "model": "nomic-embed-text",
+        "ctx_length": 8192,
+        "kwargs": {
+            "api_base": "http://ollama:11434"
+        }
+    },
+    "agent": {
+        "name": "Stopoda",
+        "description": "Primary Security Analyst"
+    }
+}
