@@ -28,6 +28,7 @@ tools:
   - browser        # Playwright-based web browsing
   - code_exec      # sandbox code runner
   - git            # git operations
+  - youtube_stt    # YouTube transcript extraction + German STT (local, offline-first)
 
 autonomy:
   level: high

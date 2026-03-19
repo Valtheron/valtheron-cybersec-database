@@ -76,6 +76,13 @@ docker run --rm --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi 2>/dev
 info "Creating agent directories..."
 mkdir -p stopoda/{tools,config} costorca/{tools,config}
 
+# ── 4b. YouTube STT dependencies ─────────────────────────────────────────────
+info "Installing YouTube STT dependencies (youtube-transcript-api, yt-dlp, faster-whisper)..."
+sudo apt-get install -y ffmpeg python3-pip 2>/dev/null || warn "ffmpeg/pip install skipped"
+pip3 install --quiet youtube-transcript-api yt-dlp faster-whisper 2>/dev/null \
+  && info "YouTube STT packages installed" \
+  || warn "pip install fehlgeschlagen – manuell installieren: pip3 install youtube-transcript-api yt-dlp faster-whisper"
+
 # ── 5. Create .env from template ─────────────────────────────────────────────
 if [[ ! -f .env ]]; then
   cp .env.example .env
